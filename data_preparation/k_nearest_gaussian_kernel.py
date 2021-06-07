@@ -1,5 +1,7 @@
+import argparse
 import numpy as np
 import scipy
+from scipy.spatial import KDTree
 import scipy.io as io
 from scipy.ndimage.filters import gaussian_filter
 import os
@@ -34,7 +36,7 @@ def gaussian_filter_density(img,points):
 
     leafsize = 2048
     # build kdtree
-    tree = scipy.spatial.KDTree(points.copy(), leafsize=leafsize)
+    tree = KDTree(points.copy(), leafsize=leafsize)
     # query kdtree
     distances, locations = tree.query(points, k=4)
 
@@ -57,7 +59,11 @@ def gaussian_filter_density(img,points):
 # test code
 if __name__=="__main__":
     # show an example to use function generate_density_map_with_fixed_kernel.
-    root = 'D:\\workspaceMaZhenwei\\GithubProject\\Crowd_counting_from_scratch\\data'
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-dataset", "--dataset", type=str, required=True, help="dataset root")
+    args = vars(ap.parse_args())
+
+    root = args["dataset"]
     
     # now generate the ShanghaiA's ground truth
     part_A_train = os.path.join(root,'part_A_final/train_data','images')
@@ -71,8 +77,10 @@ if __name__=="__main__":
         for img_path in glob.glob(os.path.join(path, '*.jpg')):
             img_paths.append(img_path)
     
-    for img_path in img_paths:
-        print(img_path)
+
+    print("Jumlah Data", len(img_paths))
+    for i, img_path in enumerate(img_paths):
+        print(i, img_path)
         mat = io.loadmat(img_path.replace('.jpg','.mat').replace('images','ground_truth').replace('IMG_','GT_IMG_'))
         img= plt.imread(img_path)#768行*1024列
         k = np.zeros((img.shape[0],img.shape[1]))
