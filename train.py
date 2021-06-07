@@ -14,6 +14,8 @@ if __name__=="__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("-novis", "--novis", required=False, help="Deactivate visdom", action="store_true")
     ap.add_argument("-dataset", "--dataset", type=str, required=True, help="dataset root")
+    ap.add_argument("-epoch", "--epoch", type=int, default=2000,
+                    help="epoch")
     args = vars(ap.parse_args())
 
     torch.backends.cudnn.enabled=False
@@ -45,7 +47,7 @@ if __name__=="__main__":
     train_loss_list=[]
     epoch_list=[]
     test_error_list=[]
-    for epoch in range(0,2000):
+    for epoch in range(0, args["epoch"]):
 
         mcnn.train()
         epoch_loss=0
@@ -63,7 +65,7 @@ if __name__=="__main__":
         #print("epoch:",epoch,"loss:",epoch_loss/len(dataloader))
         epoch_list.append(epoch)
         train_loss_list.append(epoch_loss/len(dataloader))
-        torch.save(mcnn.state_dict(),'./checkpoints/epoch_'+str(epoch)+".param")
+        # torch.save(mcnn.state_dict(),'./checkpoints/epoch_'+str(epoch)+".param")
 
         mcnn.eval()
         mae=0
@@ -77,6 +79,7 @@ if __name__=="__main__":
         if mae/len(test_dataloader)<min_mae:
             min_mae=mae/len(test_dataloader)
             min_epoch=epoch
+            torch.save(mcnn.state_dict(),'./checkpoints/best.pth')
         test_error_list.append(mae/len(test_dataloader))
         print("epoch:"+str(epoch)+" error:"+str(mae/len(test_dataloader))+" min_mae:"+str(min_mae)+" min_epoch:"+str(min_epoch))
         if vis is not None:
