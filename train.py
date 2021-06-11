@@ -14,6 +14,7 @@ if __name__=="__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("-novis", "--novis", required=False, help="Deactivate visdom", action="store_true")
     ap.add_argument("-dataset", "--dataset", type=str, required=True, help="dataset root")
+    ap.add_argument("-pretrained", "--pretrained", type=str, default="", help="path to pretrained model")
     ap.add_argument("-epoch", "--epoch", type=int, default=2000,
                     help="epoch")
     args = vars(ap.parse_args())
@@ -25,6 +26,10 @@ if __name__=="__main__":
 
     device=torch.device("cuda")
     mcnn=MCNN().to(device)
+
+    if args["pretrained"]!="":
+        mcnn.load_state_dict(torch.load(args["pretrained"], map_location=device))
+
     criterion=nn.MSELoss(size_average=False).to(device)
     optimizer = torch.optim.SGD(mcnn.parameters(), lr=1e-6,
                                 momentum=0.95)
