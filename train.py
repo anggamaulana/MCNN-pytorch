@@ -28,6 +28,7 @@ if __name__=="__main__":
     mcnn=MCNN().to(device)
 
     if args["pretrained"]!="":
+        print("Load pretrained model", args["pretrained"])
         mcnn.load_state_dict(torch.load(args["pretrained"], map_location=device))
 
     criterion=nn.MSELoss(size_average=False).to(device)
